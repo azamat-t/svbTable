@@ -8,5 +8,7 @@ const tableWrapper = document.querySelector('#table-wrapper');
 request.then((response) => {
     const svbTable = new SvbTable();
 
+    console.log(response);    
+
     tableWrapper.appendChild(svbTable.element);
 })
