@@ -1,6 +1,7 @@
 import './styles/svb-table.scss'
 
 export default class SvbTable {
+    /** Это пример */
     constructor() {
         this.element = null;
         
