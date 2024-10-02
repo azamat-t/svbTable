@@ -42,6 +42,28 @@
     row-gap: 8px;
 }
 
+/* Responsive styles */
+@media (max-width: 1024px) {
+    .svb-panel__sidebar {
+        width: 200px; /* Smaller width for tablets */
+        max-width: 40%;
+    }
+}
+
+@media (max-width: 768px) {
+    .svb-panel__sidebar {
+        width: 180px; /* Smaller width for large mobile devices */
+        max-width: 100%;
+        flex-direction: row; /* Adjust flex layout for better mobile experience */
+    }
+}
+
+@media (max-width: 480px) {
+    .svb-panel__sidebar {
+        display: none;
+    }
+}
+
 .svb-panel__content {
     order: 1;
     flex: 1 1 auto;
