@@ -3,7 +3,7 @@
 /* Container to enable scrolling with fixed header and footer */
 .svb-table-container {
   position: relative;
-  max-height: 500px; // Adjust as needed
+  max-height: calc(100vh - 200px); //500px; // Adjust as needed
   overflow: auto;
 }
 

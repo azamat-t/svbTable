@@ -270,12 +270,16 @@ export default class SvbTable {
    */
   loadRows(newData) {
     // Update data
-    this.data.rows = newData.rows
+    this.data = newData
 
-    // Rebuild body
+    // Clear the table body
     const tbody = this.element.querySelector('tbody')
 
-    tbody.innerHTML = ''
+    if (tbody) {
+      tbody.remove()
+    }
+
+    // Rebuild the body with the new data
     this.buildBody()
   }
 
@@ -308,6 +312,8 @@ export default class SvbTable {
 
     tbody.appendChild(tr)
     this.attachRowEvents(tr)
+    // Reload the table rows
+    this.loadRows(this.data)
   }
 
   /**
@@ -320,12 +326,8 @@ export default class SvbTable {
     if (index !== -1) {
       this.data.rows.splice(index, 1)
 
-      const tbody = this.element.querySelector('tbody')
-      const tr = tbody.querySelector(`tr[data-uuid="${uuid}"]`)
-
-      if (tr) {
-        tbody.removeChild(tr)
-      }
+      // Reload the table rows
+      this.loadRows(this.data)
     }
   }
 
