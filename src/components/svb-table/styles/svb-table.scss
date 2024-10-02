@@ -1,106 +1,116 @@
 @import './vars.scss';
 
-/* Container to enable scrolling with fixed header and footer */
 .svb-table-container {
   position: relative;
-  max-height: calc(100vh - 200px); //500px; // Adjust as needed
+  max-height: calc(100vh - 200px);
   overflow: auto;
 }
 
-/* Table styles */
 .svb-table {
   width: 100%;
   border-collapse: collapse;
+
+  thead, tfoot {
+    background-color: $main-color;
+    color: white;
+    position: sticky;
+    z-index: 2;
+  }
+
+  thead {
+    top: 0;
+  }
+
+  tfoot {
+    bottom: 0;
+
+    td {
+      padding: 8px;
+      text-align: left;
+      font-size: 14px;
+    }
+  }
+
+  th, td {
+    padding: 8px;
+    text-align: left;
+    font-size: 14px;
+    border: 1px solid #dee3e7;
+  }
+
+  td {
+    color: #404040;
+  }
+
+  tbody {
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    tr.hover {
+      background-color: #e9eff7;
+    }
+
+    tr.active {
+      background-color: #cce5ff;
+    }
+  }
+
+  th {
+    position: relative;
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+
+      .sort-icon {
+        margin-left: 8px;
+        font-size: 12px;
+      }
+    }
+
+    .resizer {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 5px;
+      cursor: col-resize;
+      user-select: none;
+      height: 100%;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    &.pinned {
+      position: sticky;
+      left: var(--pinned-left);
+      z-index: 3;
+      background-color: white;
+      border-right: 1px solid #ddd;
+    }
+  }
+
+  td.pinned {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background-color: white;
+    border-right: 1px solid #ddd;
+  }
+
+  .row-number {
+    position: sticky;
+    left: 0;
+    background-color: #fff;
+    border-right: 1px solid #ddd;
+    z-index: 4;
+  }
 }
 
-/* Fixed header */
-.svb-table thead {
-  background-color: $main-color;
-  color: white;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-}
-
-/* Fixed footer (if you have one) */
-.svb-table tfoot {
-  background-color: $main-color;
-  color: white;
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
-}
-
-.svb-table th,
-.svb-table td {
-  padding: 8px;
-  text-align: left;
-  font-size: 14px;
-  border: 1px solid #dee3e7;
-}
-
-.svb-table td {
-  color: #404040;
-
-}
-
-.svb-table tbody tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-.svb-table tbody tr.hover {
-  background-color: #e9eff7;
-}
-
-.svb-table tbody tr.active {
-  background-color: #cce5ff;
-}
-
-/* Optional: Adjust text alignment based on data */
-.svb-table th,
-.svb-table td {
-  text-align: left;
-}
-
-/* Styles for the resizer */
-.svb-table th {
-  position: relative;
-}
-
-.svb-table th .resizer {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 5px;
-  cursor: col-resize;
-  user-select: none;
-  height: 100%;
-}
-
-.svb-table th .resizer:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-/* Styles for pinned columns */
-.svb-table th.pinned,
-.svb-table td.pinned {
-  position: sticky;
-  left: 0;
-  z-index: 1;
-  background-color: white;
-  border-right: 1px solid #ddd;
-}
-
-.svb-table th.pinned {
-  z-index: 3; /* Ensure header cells are above body cells */
-}
-
-/* Adjust left position for multiple pinned columns */
-.svb-table th.pinned {
-  left: var(--pinned-left);
-}
-
-/* Styles for the pin icon */
 .pin-icon {
   position: absolute;
   top: 4px;
@@ -108,70 +118,8 @@
   cursor: pointer;
   font-size: 12px;
   opacity: 0.5;
-}
 
-.pin-icon:hover {
-  opacity: 1;
-}
-
-/* Fixed footer */
-.svb-table tfoot {
-  background-color: $main-color;
-  color: white;
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
-}
-
-.svb-table tfoot td {
-  padding: 8px;
-  text-align: left;
-  font-size: 14px;
-}
-
-/* Styles for the row number column */
-.svb-table .row-number {
-  position: sticky;
-  left: 0;
-  background-color: #fff;
-  border-right: 1px solid #ddd;
-  z-index: 2;
-}
-
-/* Adjust for multiple pinned columns */
-.svb-table .row-number {
-  left: 0;
-  z-index: 4; /* Ensure it's above other pinned columns */
-}
-
-/* Styles for the header content */
-.svb-table th .header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-}
-
-.svb-table th .sort-icon {
-  margin-left: 8px;
-  font-size: 12px;
-}
-
-/* Ensure the resizer is above the header content */
-.svb-table th {
-  position: relative;
-}
-
-.svb-table th .resizer {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 5px;
-  cursor: col-resize;
-  user-select: none;
-  height: 100%;
-}
-
-.svb-table th .resizer:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+  &:hover {
+    opacity: 1;
+  }
 }
