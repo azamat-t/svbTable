@@ -144,3 +144,34 @@
   z-index: 4; /* Ensure it's above other pinned columns */
 }
 
+/* Styles for the header content */
+.svb-table th .header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.svb-table th .sort-icon {
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+/* Ensure the resizer is above the header content */
+.svb-table th {
+  position: relative;
+}
+
+.svb-table th .resizer {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 5px;
+  cursor: col-resize;
+  user-select: none;
+  height: 100%;
+}
+
+.svb-table th .resizer:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}

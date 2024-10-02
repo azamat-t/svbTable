@@ -9,7 +9,8 @@ export default class SvbTable {
   constructor(data) {
     this.data = data
     this.activeRow = null
-    this.pinnedColumns = []
+    this.sortColumn = null
+    this.sortOrder = 'asc' // 'asc' or 'desc'
     this.render()
   }
 
@@ -53,7 +54,31 @@ export default class SvbTable {
       const th = document.createElement('th')
       const setting = settings[colName]
 
-      th.textContent = setting ? setting.represent : colName
+      // Create a container for the header content
+      const headerContent = document.createElement('div')
+
+      headerContent.classList.add('header-content')
+
+      // Header text
+      const headerText = document.createElement('span')
+
+      headerText.textContent = setting ? setting.represent : colName
+      headerContent.appendChild(headerText)
+
+      // Sort icon
+      const sortIcon = document.createElement('span')
+
+      sortIcon.classList.add('sort-icon')
+
+      // If this column is currently sorted, show the sort icon
+      if (this.sortColumn === colName) {
+        sortIcon.innerHTML = this.sortOrder === 'asc' ? '&#9650;' : '&#9660;'
+      }
+
+      headerContent.appendChild(sortIcon)
+
+      th.appendChild(headerContent)
+
       th.dataset.name = colName
 
       // Add resizable handler
@@ -77,10 +102,101 @@ export default class SvbTable {
 
       // Attach resize event
       this.initResizableColumns(th, resizer)
+
+      // Attach sorting event
+      th.addEventListener('click', (e) => {
+        // Prevent sorting when clicking on the resizer
+        if (e.target === resizer || e.target.classList.contains('resizer')) {
+          return
+        }
+
+        this.sortColumnData(colName)
+      })
     })
 
     thead.appendChild(headerRow)
     this.element.appendChild(thead)
+  }
+
+  sortColumnData(columnName) {
+    if (this.sortColumn === columnName) {
+      // Toggle sort order
+      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc'
+    } else {
+      // Set new sort column and default to ascending
+      this.sortColumn = columnName
+      this.sortOrder = 'asc'
+    }
+
+    // Get the index of the column to sort
+    const colIndex = this.data.columns.indexOf(columnName)
+
+    if (colIndex === -1) {
+      return
+    }
+
+    // Perform the sorting
+    this.data.rows.sort((a, b) => {
+      let valA = a[colIndex]
+      let valB = b[colIndex]
+
+      // If the value is an object with 'r', use 'r' for comparison
+      if (typeof valA === 'object' && valA !== null) {
+        valA = valA.r
+      }
+
+      if (typeof valB === 'object' && valB !== null) {
+        valB = valB.r
+      }
+
+      // Handle different data types
+      const isNumber = !isNaN(parseFloat(valA)) && !isNaN(parseFloat(valB))
+      const isDate = !isNaN(Date.parse(valA)) && !isNaN(Date.parse(valB))
+
+      if (isNumber) {
+        valA = parseFloat(valA)
+        valB = parseFloat(valB)
+      } else if (isDate) {
+        valA = new Date(valA)
+        valB = new Date(valB)
+      } else {
+        valA = valA.toString().toLowerCase()
+        valB = valB.toString().toLowerCase()
+      }
+
+      if (valA < valB) {
+        return this.sortOrder === 'asc' ? -1 : 1
+      }
+
+      if (valA > valB) {
+        return this.sortOrder === 'asc' ? 1 : -1
+      }
+
+      return 0
+    })
+
+    // Update the table body
+    this.loadRows(this.data)
+
+    // Update the sort icons in header
+    this.updateSortIcons()
+  }
+
+  updateSortIcons() {
+    const headers = this.element.querySelectorAll('th')
+
+    headers.forEach((th) => {
+      const colName = th.dataset.name
+      const sortIcon = th.querySelector('.sort-icon')
+
+      if (sortIcon) {
+        if (colName === this.sortColumn) {
+          sortIcon.innerHTML = this.sortOrder === 'asc' ? '&#9650;' : '&#9660;'
+        } else {
+          sortIcon.innerHTML = ''
+        }
+      }
+    })
   }
 
   initResizableColumns(th, resizer) {
@@ -216,6 +332,9 @@ export default class SvbTable {
 
     // Rebuild the body with the new data
     this.buildBody()
+
+    // Update sort icons
+    this.updateSortIcons()
   }
 
   /**
