@@ -47,12 +47,6 @@ export default class SvbTable {
     const thead = document.createElement('thead')
     const headerRow = document.createElement('tr')
 
-    // Add row number header cell
-    // const rowNumTh = document.createElement('th')
-    // rowNumTh.textContent = '#'
-    // rowNumTh.classList.add('row-number')
-    // headerRow.appendChild(rowNumTh)
-
     const { columns, settings } = this.data
 
     columns.forEach((colName) => {
@@ -67,17 +61,6 @@ export default class SvbTable {
 
       resizer.classList.add('resizer')
       th.appendChild(resizer)
-
-      const pinIcon = document.createElement('span')
-
-      pinIcon.classList.add('pin-icon')
-      pinIcon.innerHTML = '&#128204;' // Paperclip emoji as a pin icon
-      th.appendChild(pinIcon)
-
-      // Attach pinning event
-      pinIcon.addEventListener('click', () => {
-        this.togglePinColumn(index)
-      })
 
       // Apply styles from settings if needed
       if (setting) {
@@ -98,48 +81,6 @@ export default class SvbTable {
 
     thead.appendChild(headerRow)
     this.element.appendChild(thead)
-  }
-
-  togglePinColumn(colIndex) {
-    const isPinned = this.pinnedColumns.includes(colIndex)
-
-    if (isPinned) {
-      this.pinnedColumns = this.pinnedColumns.filter((i) => i !== colIndex)
-    } else {
-      this.pinnedColumns.push(colIndex)
-    }
-
-    this.applyPinnedColumns()
-  }
-
-  applyPinnedColumns() {
-    const rows = this.element.querySelectorAll('tr')
-
-    rows.forEach((row) => {
-      row.childNodes.forEach((cell, index) => {
-        if (this.pinnedColumns.includes(index)) {
-          cell.classList.add('pinned')
-          cell.style.left = `${this.getPinnedOffset(index)}px`
-        } else {
-          cell.classList.remove('pinned')
-          cell.style.left = ''
-        }
-      })
-    })
-  }
-
-  getPinnedOffset(colIndex) {
-    let offset = 0
-
-    for (let i = 0; i < colIndex; i++) {
-      if (this.pinnedColumns.includes(i)) {
-        const th = this.element.querySelector(`th:nth-child(${i + 1})`)
-
-        offset += th.offsetWidth
-      }
-    }
-
-    return offset
   }
 
   initResizableColumns(th, resizer) {
@@ -181,12 +122,6 @@ export default class SvbTable {
       const uuid = rowData[0]
 
       tr.dataset.uuid = uuid
-
-      // Add row number cell
-      // const rowNumTd = document.createElement('td')
-      // rowNumTd.textContent = rowIndex + 1
-      // rowNumTd.classList.add('row-number')
-      // tr.appendChild(rowNumTd)
 
       rowData.forEach((cellData, index) => {
         const td = document.createElement('td')

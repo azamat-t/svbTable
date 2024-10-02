@@ -119,5 +119,31 @@ select:focus,
 
 .svb-toolbar {
     display: flex;
-    gap: 8px;
+    align-items: center;
+    gap: 14px;
+}
+
+.svb-toolbar-title {
+  font-size: 20px;
+}
+
+.svb-page {
+  height: 30px;
+  width: 30px;
+  font-size: 16px;
+  border: transparent;
+  background: #f3f4f6;
+}
+
+.svb-page__active {
+  height: 34px;
+  width: 34px;
+  font-size: 16px;
+  border: transparent;
+  background: #e2e8eb ;
+  border-radius: 3px;
+}
+
+.svg-right {
+  transform: rotate(180deg);
 }
