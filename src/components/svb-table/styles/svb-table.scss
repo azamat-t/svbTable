@@ -1,53 +1,59 @@
 @import './vars.scss';
 
-/** Это пример */
-
-table {
-  width: 100%;
-  max-width: 900px;
-  border-collapse: collapse;
-  background-color: white;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  overflow: hidden;
+/* Container to enable scrolling with fixed header and footer */
+.svb-table-container {
+  position: relative;
+  max-height: 500px; // Adjust as needed
+  overflow: auto;
 }
 
-table thead {
+/* Table styles */
+.svb-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Fixed header */
+.svb-table thead {
   background-color: $main-color;
   color: white;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
-table th,
-table td {
+/* Fixed footer (if you have one) */
+.svb-table tfoot {
+  background-color: $main-color;
+  color: white;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+.svb-table th,
+.svb-table td {
   padding: 8px;
   text-align: left;
   font-size: 14px;
 }
 
-table tbody tr:nth-child(even) {
+.svb-table tbody tr:nth-child(even) {
   background-color: #f2f2f2;
 }
 
-table tbody tr:hover {
+.svb-table tbody tr.hover {
   background-color: #e9eff7;
 }
 
-table th {
-  background-color: $main-color;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+.svb-table tbody tr.active {
+  background-color: #cce5ff;
 }
 
-table td {
-  color: #555;
+/* Optional: Adjust text alignment based on data */
+.svb-table th,
+.svb-table td {
+  text-align: left;
 }
 
-table tbody tr td:first-child {
-  font-weight: bold;
-  color: #333;
-}
-
-table tbody tr td:last-child {
-  color: $main-color;
-  font-weight: bold;
-}
+/* You can add more styles as per your design requirements */
