@@ -24,6 +24,21 @@ request.then((response) => {
     // Logic to delete the selected (active) row
     deleteActiveRow(svbTable)
   })
+
+  const uuid = '89326d90-fd15-4070-a8a0-538e2c9dd386'
+  const columnName = 'sum'
+  const newValue = '3456000'
+
+  // Using multiple arguments
+  svbTable.setValue(uuid, columnName, newValue)
+
+  // Using an object
+  svbTable.setValue({ uuid, columnName, value: newValue })
+
+  // Using an object
+  const sumValue = svbTable.getValue({ uuid, columnName })
+
+  console.log('The sum is:', sumValue)
 })
 
 // Function to add a new row

@@ -302,6 +302,9 @@ export default class SvbTable {
         } else {
           td.textContent = value
         }
+
+        // Reload the table rows
+        this.loadRows(this.data)
       }
     }
   }
