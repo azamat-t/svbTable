@@ -1,3 +1,4 @@
+import Formatter from './Formatter'
 import './styles/svb-table.scss'
 
 export default class SvbTable {
@@ -8,6 +9,7 @@ export default class SvbTable {
   constructor(data) {
     this.data = data
     this.activeRow = null
+    this.pinnedColumns = []
     this.render()
   }
 
@@ -31,6 +33,9 @@ export default class SvbTable {
     // Build table body
     this.buildBody()
 
+    // Build table footer
+    this.buildFooter()
+
     // Append table to container
     this.container.appendChild(this.element)
   }
@@ -42,6 +47,12 @@ export default class SvbTable {
     const thead = document.createElement('thead')
     const headerRow = document.createElement('tr')
 
+    // Add row number header cell
+    // const rowNumTh = document.createElement('th')
+    // rowNumTh.textContent = '#'
+    // rowNumTh.classList.add('row-number')
+    // headerRow.appendChild(rowNumTh)
+
     const { columns, settings } = this.data
 
     columns.forEach((colName) => {
@@ -51,21 +62,112 @@ export default class SvbTable {
       th.textContent = setting ? setting.represent : colName
       th.dataset.name = colName
 
+      // Add resizable handler
+      const resizer = document.createElement('div')
+
+      resizer.classList.add('resizer')
+      th.appendChild(resizer)
+
+      const pinIcon = document.createElement('span')
+
+      pinIcon.classList.add('pin-icon')
+      pinIcon.innerHTML = '&#128204;' // Paperclip emoji as a pin icon
+      th.appendChild(pinIcon)
+
+      // Attach pinning event
+      pinIcon.addEventListener('click', () => {
+        this.togglePinColumn(index)
+      })
+
       // Apply styles from settings if needed
       if (setting) {
         if (setting.columnWidth) {
           th.style.width = `${setting.columnWidth}px`
         }
+
         if (setting.textAlign) {
           th.style.textAlign = setting.textAlign
         }
       }
 
       headerRow.appendChild(th)
+
+      // Attach resize event
+      this.initResizableColumns(th, resizer)
     })
 
     thead.appendChild(headerRow)
     this.element.appendChild(thead)
+  }
+
+  togglePinColumn(colIndex) {
+    const isPinned = this.pinnedColumns.includes(colIndex)
+
+    if (isPinned) {
+      this.pinnedColumns = this.pinnedColumns.filter((i) => i !== colIndex)
+    } else {
+      this.pinnedColumns.push(colIndex)
+    }
+
+    this.applyPinnedColumns()
+  }
+
+  applyPinnedColumns() {
+    const rows = this.element.querySelectorAll('tr')
+
+    rows.forEach((row) => {
+      row.childNodes.forEach((cell, index) => {
+        if (this.pinnedColumns.includes(index)) {
+          cell.classList.add('pinned')
+          cell.style.left = `${this.getPinnedOffset(index)}px`
+        } else {
+          cell.classList.remove('pinned')
+          cell.style.left = ''
+        }
+      })
+    })
+  }
+
+  getPinnedOffset(colIndex) {
+    let offset = 0
+
+    for (let i = 0; i < colIndex; i++) {
+      if (this.pinnedColumns.includes(i)) {
+        const th = this.element.querySelector(`th:nth-child(${i + 1})`)
+
+        offset += th.offsetWidth
+      }
+    }
+
+    return offset
+  }
+
+  initResizableColumns(th, resizer) {
+    let x = 0
+    let w = 0
+
+    const mouseDownHandler = (e) => {
+      x = e.clientX
+      const styles = window.getComputedStyle(th)
+
+      w = parseInt(styles.width, 10)
+
+      document.addEventListener('mousemove', mouseMoveHandler)
+      document.addEventListener('mouseup', mouseUpHandler)
+    }
+
+    const mouseMoveHandler = (e) => {
+      const dx = e.clientX - x
+
+      th.style.width = `${w + dx}px`
+    }
+
+    const mouseUpHandler = () => {
+      document.removeEventListener('mousemove', mouseMoveHandler)
+      document.removeEventListener('mouseup', mouseUpHandler)
+    }
+
+    resizer.addEventListener('mousedown', mouseDownHandler)
   }
 
   /**
@@ -77,22 +179,41 @@ export default class SvbTable {
     this.data.rows.forEach((rowData) => {
       const tr = document.createElement('tr')
       const uuid = rowData[0]
+
       tr.dataset.uuid = uuid
+
+      // Add row number cell
+      // const rowNumTd = document.createElement('td')
+      // rowNumTd.textContent = rowIndex + 1
+      // rowNumTd.classList.add('row-number')
+      // tr.appendChild(rowNumTd)
 
       rowData.forEach((cellData, index) => {
         const td = document.createElement('td')
         const columnName = this.data.columns[index]
+
         td.dataset.name = columnName
 
-        // Handle cellData that is an object with 'v' and 'r' properties
+        // Format data based on column
+        let displayValue = ''
+
         if (typeof cellData === 'object' && cellData !== null) {
-          td.textContent = cellData.r
+          displayValue = cellData.r
         } else {
-          td.textContent = cellData
+          if (columnName === 'docdate') {
+            displayValue = Formatter.formatDate(cellData)
+          } else if (columnName === 'sum' || columnName === 'sumfact') {
+            displayValue = Formatter.formatNumber(cellData)
+          } else {
+            displayValue = cellData
+          }
         }
+
+        td.textContent = displayValue
 
         // Apply text alignment if specified
         const setting = this.data.settings[columnName]
+
         if (setting && setting.textAlign) {
           td.style.textAlign = setting.textAlign
         }
@@ -109,6 +230,40 @@ export default class SvbTable {
     this.addRowEventListeners()
   }
 
+  buildFooter() {
+    const tfoot = document.createElement('tfoot')
+    const footerRow = document.createElement('tr')
+
+    this.data.columns.forEach((colName) => {
+      const td = document.createElement('td')
+
+      td.dataset.name = colName
+      td.textContent = '' // Initially empty
+      footerRow.appendChild(td)
+    })
+
+    tfoot.appendChild(footerRow)
+    this.element.appendChild(tfoot)
+  }
+
+  setFooterValue(columnName, value) {
+    const footerCell = this.element.querySelector(
+      `tfoot td[data-name="${columnName}"]`
+    )
+
+    if (footerCell) {
+      footerCell.textContent = value
+    }
+  }
+
+  getFooterValue(columnName) {
+    const footerCell = this.element.querySelector(
+      `tfoot td[data-name="${columnName}"]`
+    )
+
+    return footerCell ? footerCell.textContent : null
+  }
+
   /**
    * Clears current rows and loads new data into the table.
    * @param {Object} newData - The new data to load.
@@ -119,6 +274,7 @@ export default class SvbTable {
 
     // Rebuild body
     const tbody = this.element.querySelector('tbody')
+
     tbody.innerHTML = ''
     this.buildBody()
   }
@@ -132,11 +288,13 @@ export default class SvbTable {
     const tbody = this.element.querySelector('tbody')
     const tr = document.createElement('tr')
     const uuid = rowData[0]
+
     tr.dataset.uuid = uuid
 
     rowData.forEach((cellData, index) => {
       const td = document.createElement('td')
       const columnName = this.data.columns[index]
+
       td.dataset.name = columnName
 
       if (typeof cellData === 'object' && cellData !== null) {
@@ -178,8 +336,10 @@ export default class SvbTable {
   getActiveRow() {
     if (this.activeRow) {
       const uuid = this.activeRow.dataset.uuid
+
       return this.data.rows.find((row) => row[0] === uuid)
     }
+
     return null
   }
 
@@ -199,6 +359,7 @@ export default class SvbTable {
 
       if (tr) {
         const td = tr.children[colIndex]
+
         if (typeof value === 'object' && value !== null) {
           td.textContent = value.r
         } else {
@@ -220,6 +381,7 @@ export default class SvbTable {
     if (rowIndex !== -1 && colIndex !== -1) {
       return this.data.rows[rowIndex][colIndex]
     }
+
     return null
   }
 
@@ -228,6 +390,7 @@ export default class SvbTable {
    */
   addRowEventListeners() {
     const rows = this.element.querySelectorAll('tbody tr')
+
     rows.forEach((row) => this.attachRowEvents(row))
   }
 
@@ -246,6 +409,7 @@ export default class SvbTable {
       if (this.activeRow) {
         this.activeRow.classList.remove('active')
       }
+
       this.activeRow = row
       row.classList.add('active')
     })
@@ -266,6 +430,7 @@ export default class SvbTable {
 
     if (classList) {
       const classNames = classList.split(' ')
+
       classNames.forEach((name) => {
         element.classList.add(name)
       })

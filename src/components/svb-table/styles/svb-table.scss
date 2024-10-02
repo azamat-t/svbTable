@@ -56,4 +56,85 @@
   text-align: left;
 }
 
-/* You can add more styles as per your design requirements */
+/* Styles for the resizer */
+.svb-table th {
+  position: relative;
+}
+
+.svb-table th .resizer {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 5px;
+  cursor: col-resize;
+  user-select: none;
+  height: 100%;
+}
+
+.svb-table th .resizer:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Styles for pinned columns */
+.svb-table th.pinned,
+.svb-table td.pinned {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background-color: white;
+  border-right: 1px solid #ddd;
+}
+
+.svb-table th.pinned {
+  z-index: 3; /* Ensure header cells are above body cells */
+}
+
+/* Adjust left position for multiple pinned columns */
+.svb-table th.pinned {
+  left: var(--pinned-left);
+}
+
+/* Styles for the pin icon */
+.pin-icon {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+.pin-icon:hover {
+  opacity: 1;
+}
+
+/* Fixed footer */
+.svb-table tfoot {
+  background-color: $main-color;
+  color: white;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+.svb-table tfoot td {
+  padding: 8px;
+  text-align: left;
+  font-size: 14px;
+}
+
+/* Styles for the row number column */
+.svb-table .row-number {
+  position: sticky;
+  left: 0;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+  z-index: 2;
+}
+
+/* Adjust for multiple pinned columns */
+.svb-table .row-number {
+  left: 0;
+  z-index: 4; /* Ensure it's above other pinned columns */
+}
+
